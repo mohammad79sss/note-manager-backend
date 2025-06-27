@@ -1,0 +1,61 @@
+import User from '../models/userModel.js';
+
+
+
+// GET /api/v1/users
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-passwordHash');
+        console.log(users)
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// GET /api/v1/users/:id
+export const getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-passwordHash');
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Invalid user ID', error });
+    }
+};
+
+
+
+// PUT /api/v1/users/:id
+export const updateUser = async (req, res) => {
+    try {
+        const { username, email, passwordHash } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                ...(username && { username }),
+                ...(email && { email }),
+                ...(passwordHash && { passwordHash }),
+                updatedAt: new Date()
+            },
+            { new: true }
+        ).select('-passwordHash');
+
+        if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+        res.json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to update user', error });
+    }
+};
+
+// DELETE /api/v1/users/:id
+export const deleteUser = async (req, res) => {
+    try {
+        const result = await User.findByIdAndDelete(req.params.id);
+        if (!result) return res.status(404).json({ message: 'User not found' });
+        res.status(204).send();
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to delete user', error });
+    }
+};
