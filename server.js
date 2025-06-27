@@ -10,6 +10,7 @@ import noteRouter from './routes/noteRouter.js';
 import authRouter from "./routes/authRouter.js";
 import chatroomRouter from "./routes/chatroomRouter.js";
 import messageRouter from "./routes/messageRouter.js";
+import commentRouter from "./routes/commentRouter.js"
 
 //configs
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(`/${apiBase}/notes`, noteRouter);  // Add leading slash
 app.use(`/${apiBase}/auth`, authRouter);  // Add leading slash
 app.use(`/${apiBase}/chatroom`, chatroomRouter);
 app.use(`/${apiBase}/message`, messageRouter);
+app.use(`/${apiBase}/comment`,commentRouter);
 
 //requests
 app.get('/', (req, res) => {

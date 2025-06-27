@@ -78,7 +78,7 @@ export const deleteMessage = async (req, res) => {
 export const getMessagesByChatroom = async (req, res) => {
     try {
         const messages = await Message.find({ chatroomId: req.params.chatroomId })
-            .sort({ timestamp: 1 }) // oldest to newest
+            .sort({ timestamp: -1 }) //  newest to oldest
             .populate('senderId', 'username email');
         res.status(StatusCodes.OK).json(messages);
     } catch (error) {
