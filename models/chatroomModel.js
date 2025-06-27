@@ -6,6 +6,7 @@ const chatroomSchema = new mongoose.Schema({
     content: { type: String, default: '' },
     isShared: { type: Boolean, default: false },
     sharedId: { type: String, unique: true, sparse: true },
+    allowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // <-- New
     lastModified: { type: Date, default: Date.now }
 }, { timestamps: true });
 

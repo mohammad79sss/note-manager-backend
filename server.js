@@ -8,6 +8,8 @@ import cors from 'cors';
 import userRouter from './routes/userRouter.js';
 import noteRouter from './routes/noteRouter.js';
 import authRouter from "./routes/authRouter.js";
+import chatroomRouter from "./routes/chatroomRouter.js";
+import messageRouter from "./routes/messageRouter.js";
 
 //configs
 dotenv.config();
@@ -25,6 +27,8 @@ app.use(express.json());
 app.use(`/${apiBase}/users`, userRouter);  // Add leading slash
 app.use(`/${apiBase}/notes`, noteRouter);  // Add leading slash
 app.use(`/${apiBase}/auth`, authRouter);  // Add leading slash
+app.use(`/${apiBase}/chatroom`, chatroomRouter);
+app.use(`/${apiBase}/message`, messageRouter);
 
 //requests
 app.get('/', (req, res) => {
