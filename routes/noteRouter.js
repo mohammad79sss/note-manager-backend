@@ -6,12 +6,13 @@ import {
     getNoteById,
     createNote,
     updateNote,
-    deleteNote
+    deleteNote, getAllPublicNotes
 } from '../controllers/noteController.js';
 
 const router = express.Router();
 
 router.get('/', getAllNotes);
+router.get('/public/all', getAllPublicNotes);
 router.get('/user/:ownerId', getNotesByOwner); // ✅ specific route for user notes
 router.get('/:id', getNoteById);
 router.post('/', createNote);

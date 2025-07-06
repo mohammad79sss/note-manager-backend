@@ -5,7 +5,17 @@ import { StatusCodes } from 'http-status-codes';
 // GET /api/v1/notes
 export const getAllNotes = async (req, res) => {
     try {
-        const notes = await Note.find().sort({ updatedAt: -1 });
+        const notes = await Note.find().sort({ updatedAt: -1 }).populate('ownerId','username email');
+        res.status(StatusCodes.OK).json(notes);
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+};
+
+// GET /api/v1/notes
+export const getAllPublicNotes = async (req, res) => {
+    try {
+        const notes = await Note.find({ isShared: true }).sort({ updatedAt: -1 }).populate('ownerId','username email');
         res.status(StatusCodes.OK).json(notes);
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -16,7 +26,7 @@ export const getAllNotes = async (req, res) => {
 export const getNotesByOwner = async (req, res) => {
     try {
         const { ownerId } = req.params;
-        const notes = await Note.find({ ownerId }).sort({ updatedAt: -1 });
+        const notes = await Note.find({ ownerId }).sort({ updatedAt: -1 }).populate('ownerId','username email');
         res.status(StatusCodes.OK).json(notes);
     } catch (error) {
         res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
@@ -26,7 +36,7 @@ export const getNotesByOwner = async (req, res) => {
 // GET /api/v1/notes/:id
 export const getNoteById = async (req, res) => {
     try {
-        const note = await Note.findById(req.params.id);
+        const note = await Note.findById(req.params.id).populate('ownerId','username email');
         if (!note) return res.status(StatusCodes.NOT_FOUND).json({ message: 'Note not found' });
         res.status(StatusCodes.OK).json(note);
     } catch (error) {

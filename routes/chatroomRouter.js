@@ -8,14 +8,15 @@ import {
     getAllPublicChatrooms,
     getChatroomsUserHasAccessTo,
     addUserToChatroom,
-    getAllChatrooms
+    getAllChatrooms, getChatroomByShareId
 } from '../controllers/chatroomController.js';
 
 const router = express.Router();
 
-router.get('/', getAllChatrooms)
+router.get('/', getAllChatrooms);
 router.post('/', createChatroom);
 router.get('/:id', getChatroomById);
+router.get('/by-share-id/:id/:sharedId',getChatroomByShareId);
 router.put('/:id', updateChatroom);
 router.delete('/:id', deleteChatroom);
 

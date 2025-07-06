@@ -1,11 +1,24 @@
 import User from '../models/userModel.js';
-
+import bcrypt from 'bcryptjs';
 
 
 // GET /api/v1/users
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select('-passwordHash');
+        const { search } = req.query;
+
+        let query = {};
+        if (search) {
+            const regex = new RegExp(search, 'i'); // case-insensitive search
+            query = {
+                $or: [
+                    { name: regex },
+                    { username: regex }
+                ]
+            };
+        }
+
+        const users = await User.find(query).select('-passwordHash');
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
@@ -28,16 +41,22 @@ export const getUserById = async (req, res) => {
 // PUT /api/v1/users/:id
 export const updateUser = async (req, res) => {
     try {
-        const { username, email, passwordHash } = req.body;
+        const { username, email, password } = req.body;
+
+        const updateData = {
+            ...(username && { username }),
+            ...(email && { email }),
+            updatedAt: new Date()
+        };
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.passwordHash = await bcrypt.hash(password, salt);
+        }
 
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
-            {
-                ...(username && { username }),
-                ...(email && { email }),
-                ...(passwordHash && { passwordHash }),
-                updatedAt: new Date()
-            },
+            updateData,
             { new: true }
         ).select('-passwordHash');
 
