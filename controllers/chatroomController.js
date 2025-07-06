@@ -58,7 +58,9 @@ export const createChatroom = async (req, res) => {
 // READ
 export const getChatroomById = async (req, res) => {
     try {
-        const chatroom = await Chatroom.findById(req.params.id).populate('ownerId','username email');
+        const chatroom = await Chatroom.findById(req.params.id)
+            .populate('ownerId','username email')
+            .populate('allowedUsers', 'username');
         if (!chatroom) return res.status(404).json({ message: 'Chatroom not found' });
         res.json(chatroom);
     } catch (error) {
