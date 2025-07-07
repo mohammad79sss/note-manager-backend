@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 import Comment from "../models/commentModel.js"
 import { StatusCodes } from 'http-status-codes';
+import {getPaginationOptions} from "../utils/pagination.js";
 export const getAllComments = async(req,res)=>{
     try{
-        const comments = await Comment.find();
+        const { skip, limit } = getPaginationOptions(req);
+        const comments = await Comment.find()
+            .skip(skip)
+            .limit(limit);
         res.status(StatusCodes.OK).json(comments);
     }catch(error){
         res.status(StatusCodes.BAD_REQUEST).json({message:'failed to get comments', error:error.message});
@@ -30,7 +34,8 @@ export const createComment = async(req,res)=>{
 export const getCommentById = async(req,res)=>{
     try {
         const commentId = req.params.id;
-        const comment = await Comment.findById(commentId).populate('senderId','username email');
+        const comment = await Comment.findById(commentId)
+            .populate('senderId','username email');
         res.status(StatusCodes.OK).json(comment);
     }catch (error){
         res.status(StatusCodes.BAD_REQUEST).json({message:'failed to retrieve comment', error:error.message});
@@ -86,7 +91,10 @@ export const deleteComment = async(req,res)=>{
 
 export const getCommentsByNote = async (req,res)=>{
     try{
+        const { skip, limit } = getPaginationOptions(req);
         const comments = await Comment.find({noteId:req.params.noteId})
+            .skip(skip)
+            .limit(limit)
             .sort({ timestamp: -1 }) //  newest to oldest
             .populate('senderId', 'username email');
         console.log(comments);

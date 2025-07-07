@@ -1,10 +1,12 @@
 import User from '../models/userModel.js';
 import bcrypt from 'bcryptjs';
+import {getPaginationOptions} from "../utils/pagination.js";
 
 
 // GET /api/v1/users
 export const getAllUsers = async (req, res) => {
     try {
+        const { skip, limit } = getPaginationOptions(req);
         const { search } = req.query;
 
         let query = {};
@@ -18,7 +20,7 @@ export const getAllUsers = async (req, res) => {
             };
         }
 
-        const users = await User.find(query).select('-passwordHash');
+        const users = await User.find(query).skip(skip).limit(limit).select('-passwordHash');
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });

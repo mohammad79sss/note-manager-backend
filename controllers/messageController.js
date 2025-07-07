@@ -1,11 +1,13 @@
 import Message from '../models/messageModel.js';
 import { StatusCodes } from 'http-status-codes';
+import {getPaginationOptions} from "../utils/pagination.js";
 
 
 //GET /api/v1/messages
 export const getAllMessages = async (req, res)=>{
     try{
-        const messages = await Message.find();
+        const { skip, limit } = getPaginationOptions(req);
+        const messages = await Message.find().skip(skip).limit(limit);
         res.json(messages)
     } catch (error) {
         res.status(StatusCodes.BAD_REQUEST).json({ message: 'Failed to send message', error: error.message });
@@ -46,6 +48,7 @@ export const getMessageById = async (req, res) => {
 // PUT /api/v1/messages/:id
 export const updateMessage = async (req, res) => {
     try {
+
         const { content, system } = req.body;
         const updatedMessage = await Message.findByIdAndUpdate(
             req.params.id,
@@ -77,7 +80,10 @@ export const deleteMessage = async (req, res) => {
 // GET /api/v1/messages/chatroom/:chatroomId
 export const getMessagesByChatroom = async (req, res) => {
     try {
+        const { skip, limit } = getPaginationOptions(req);
         const messages = await Message.find({ chatroomId: req.params.chatroomId })
+            .skip(skip)
+            .limit(limit)
             .sort({ timestamp: 1 }) //  newest to oldest
             .populate('senderId', 'username email');
         res.status(StatusCodes.OK).json(messages);

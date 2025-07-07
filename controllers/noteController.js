@@ -1,11 +1,13 @@
 // controllers/noteController.js
 import Note from '../models/noteModel.js';
 import { StatusCodes } from 'http-status-codes';
+import {getPaginationOptions} from "../utils/pagination.js";
 
 // GET /api/v1/notes
 export const getAllNotes = async (req, res) => {
     try {
-        const notes = await Note.find().sort({ updatedAt: -1 }).populate('ownerId','username email');
+        const { skip, limit } = getPaginationOptions(req);
+        const notes = await Note.find().skip(skip).limit(limit).sort({ updatedAt: -1 }).populate('ownerId','username email');
         res.status(StatusCodes.OK).json(notes);
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -15,7 +17,8 @@ export const getAllNotes = async (req, res) => {
 // GET /api/v1/notes
 export const getAllPublicNotes = async (req, res) => {
     try {
-        const notes = await Note.find({ isShared: true }).sort({ updatedAt: -1 }).populate('ownerId','username email');
+        const { skip, limit } = getPaginationOptions(req);
+        const notes = await Note.find({ isShared: true }).skip(skip).limit(limit).sort({ updatedAt: -1 }).populate('ownerId','username email');
         res.status(StatusCodes.OK).json(notes);
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -25,8 +28,9 @@ export const getAllPublicNotes = async (req, res) => {
 // GET /api/v1/notes/user/:ownerId
 export const getNotesByOwner = async (req, res) => {
     try {
+        const { skip, limit } = getPaginationOptions(req);
         const { ownerId } = req.params;
-        const notes = await Note.find({ ownerId }).sort({ updatedAt: -1 }).populate('ownerId','username email');
+        const notes = await Note.find({ ownerId }).skip(skip).limit(limit).sort({ updatedAt: -1 }).populate('ownerId','username email');
         res.status(StatusCodes.OK).json(notes);
     } catch (error) {
         res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
@@ -36,6 +40,7 @@ export const getNotesByOwner = async (req, res) => {
 // GET /api/v1/notes/:id
 export const getNoteById = async (req, res) => {
     try {
+
         const note = await Note.findById(req.params.id).populate('ownerId','username email');
         if (!note) return res.status(StatusCodes.NOT_FOUND).json({ message: 'Note not found' });
         res.status(StatusCodes.OK).json(note);

@@ -2,6 +2,7 @@ import Chatroom from '../models/chatroomModel.js';
 import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import { nanoid } from 'nanoid';
+import {getPaginationOptions} from "../utils/pagination.js";
 
 
 async function generateUniqueSharedId() {
@@ -16,15 +17,19 @@ async function generateUniqueSharedId() {
 
 
 //READ ALL
-export const getAllChatrooms = async(req,res)=>{
-    try{
-        const chatrooms = await Chatroom.find().populate('ownerId','username email');
+export const getAllChatrooms = async (req, res) => {
+    try {
+        const { skip, limit } = getPaginationOptions(req);
+        const chatrooms = await Chatroom.find()
+            .skip(skip)
+            .limit(limit)
+            .populate('ownerId', 'username email');
         res.json(chatrooms);
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
     }
-    catch (error){
-        res.status(StatusCodes.BAD_REQUEST).json({error: error.message});
-    }
-}
+};
+
 
 // CREATE
 
@@ -86,7 +91,7 @@ export const getChatroomByShareId = async (req, res) => {
         const isOwner = chatroom.ownerId?._id?.toString() === userId;
         const isAllowed = chatroom.allowedUsers.some(uid => uid.toString() === userId);
 
-        if ((!chatroom.isShared && !isOwner) || !isAllowed) {
+        if ((!chatroom.isShared && !isOwner) && !isAllowed) {
             return res.status(403).json({ message: 'دسترسی غیرمجاز به چت‌روم خصوصی' });
         }
 
@@ -128,35 +133,50 @@ export const deleteChatroom = async (req, res) => {
 // 1. GET chatrooms by ownerId
 export const getChatroomsByOwner = async (req, res) => {
     try {
-        const chatrooms = await Chatroom.find({ ownerId: req.params.userId }).populate('ownerId','username email');
+        const { skip, limit } = getPaginationOptions(req);
+        const chatrooms = await Chatroom.find({ ownerId: req.params.userId })
+            .skip(skip)
+            .limit(limit)
+            .populate('ownerId', 'username email');
         res.json(chatrooms);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
+
 // 2. GET all public-chatroom chatrooms
-export const getAllPublicChatrooms = async (_req, res) => {
+export const getAllPublicChatrooms = async (req, res) => {
     try {
-        const chatrooms = await Chatroom.find({ isShared: true }).populate('ownerId', 'username email');;
+        const { skip, limit } = getPaginationOptions(req);
+        const chatrooms = await Chatroom.find({ isShared: true })
+            .skip(skip)
+            .limit(limit)
+            .populate('ownerId', 'username email');
         res.json(chatrooms);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // 3. GET chatrooms where user has access (in allowedUsers)
 export const getChatroomsUserHasAccessTo = async (req, res) => {
     try {
+        const { skip, limit } = getPaginationOptions(req);
         const chatrooms = await Chatroom.find({
             isShared: false,
             allowedUsers: new mongoose.Types.ObjectId(req.params.userId)
-        }).populate('ownerId','username email');
+        })
+            .skip(skip)
+            .limit(limit)
+            .populate('ownerId', 'username email');
         res.json(chatrooms);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 // 4. ADD user to chatroom
 export const addUserToChatroom = async (req, res) => {
