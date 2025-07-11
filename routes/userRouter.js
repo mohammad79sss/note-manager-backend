@@ -5,6 +5,8 @@ import {
     updateUser,
     deleteUser
 } from '../controllers/userController.js';
+import authenticationChecker from "../middlewares/authenticationCheckerMiddleware.js";
+
 
 const router = express.Router();
 

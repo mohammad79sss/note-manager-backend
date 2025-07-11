@@ -4,6 +4,9 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import mongoose from "mongoose";
 import cors from 'cors';
+import requestLogger from './middlewares/requestLoggerMiddleware.js';
+import errorHandler from './middlewares/errorHandlerMiddleware.js';
+
 //routers
 import userRouter from './routes/userRouter.js';
 import noteRouter from './routes/noteRouter.js';
@@ -22,12 +25,14 @@ const app = express();
 
 //middlewares - these should come first
 app.use(cors()); // Allow all origins (customize for production)
+app.use(requestLogger);
+app.use(errorHandler);
 app.use(express.json());
 
 //routes
-app.use(`/${apiBase}/users`, userRouter);  // Add leading slash
-app.use(`/${apiBase}/notes`, noteRouter);  // Add leading slash
-app.use(`/${apiBase}/auth`, authRouter);  // Add leading slash
+app.use(`/${apiBase}/users`, userRouter);
+app.use(`/${apiBase}/notes`, noteRouter);
+app.use(`/${apiBase}/auth`, authRouter);
 app.use(`/${apiBase}/chatroom`, chatroomRouter);
 app.use(`/${apiBase}/message`, messageRouter);
 app.use(`/${apiBase}/comment`,commentRouter);

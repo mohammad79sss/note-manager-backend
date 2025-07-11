@@ -10,8 +10,11 @@ import {
     addUserToChatroom,
     getAllChatrooms, getChatroomByShareId
 } from '../controllers/chatroomController.js';
+import authenticationChecker from "../middlewares/authenticationCheckerMiddleware.js";
+
 
 const router = express.Router();
+router.use(authenticationChecker);
 
 router.get('/', getAllChatrooms);
 router.post('/', createChatroom);

@@ -8,8 +8,10 @@ import {
     updateNote,
     deleteNote, getAllPublicNotes
 } from '../controllers/noteController.js';
+import authenticationChecker from "../middlewares/authenticationCheckerMiddleware.js";
 
 const router = express.Router();
+router.use(authenticationChecker);
 
 router.get('/', getAllNotes);
 router.get('/public/all', getAllPublicNotes);
